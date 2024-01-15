@@ -14,7 +14,7 @@ export default function Videos() {
   }
 
   if (!isLoading && isError) {
-    content = <Error message='There was an error' />
+    content = <Error message='There was an error occurred' />
   }
 
   if (!isLoading && !isError && videos?.length === 0) {

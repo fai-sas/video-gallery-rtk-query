@@ -4,14 +4,20 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:9000' }),
-  tagTypes: ['Videos'],
+  tagTypes: ['Videos', 'SingleVideo', 'RelatedVideos'],
   endpoints: (builder) => ({
     getVideos: builder.query({
       query: () => '/videos',
+      providesTags: ['Videos'],
     }),
     getSingleVideo: builder.query({
       query: (videoId) => `/videos/${videoId}`,
-      providesTags: ['Videos'],
+      providesTags: (result, error, arg) => [
+        {
+          type: 'SingleVideo',
+          id: arg,
+        },
+      ],
     }),
     getRelatedVideos: builder.query({
       query: ({ id, title }) => {
@@ -21,6 +27,12 @@ export const apiSlice = createApi({
         const queryString = `/videos?${likes.join('&')}&_limit=4`
         return queryString
       },
+      providesTags: (result, error, arg) => [
+        {
+          type: 'RelatedVideos',
+          id: arg.id,
+        },
+      ],
     }),
     addVideo: builder.mutation({
       query: (data) => ({
@@ -30,6 +42,24 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Videos'],
     }),
+    editVideo: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/videos/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: (result, error, arg) => [
+        'Videos',
+        {
+          type: 'SingleVideo',
+          id: arg.id,
+        },
+        {
+          type: 'RelatedVideos',
+          id: arg.id,
+        },
+      ],
+    }),
   }),
 })
 
@@ -38,4 +68,5 @@ export const {
   useGetSingleVideoQuery,
   useGetRelatedVideosQuery,
   useAddVideoMutation,
+  useEditVideoMutation,
 } = apiSlice

@@ -25,7 +25,7 @@ export default function RelatedVideos({ id, title }) {
   }
 
   if (!isLoading && isError) {
-    content = <Error message='There was an error occurred' />
+    content = <Error message='There was an error' />
   }
 
   if (!isLoading && !isError && relatedVideos?.length === 0) {
